@@ -2,9 +2,12 @@
     if(count($_FILES) > 0)
     {
         $connection = mysqli_connect("localhost", "root", "zfkeP9GJ", "Syllabi");
+        if(!$connection)
+        {
+            die("<div>Could not connect to mysql table. Please contact the OCTET office with this information.</div>");
+        }
         $username = mysqli_real_escape_string($connection, $_POST['username']);
-        $base_directory = "/var/www/Syllabi/Uploaded_Syllabi/";
-        $base_url = "https://conevals.csr.oberlin.edu/Syllabi/Uploaded_Syllabi/";
+        $base_directory = "/home/cegerton/Uploaded_Syllabi/";
         foreach($_POST['courses'] as $course_id)
         {
             if($_FILES[$course_id]['error'] === UPLOAD_ERR_OK)
@@ -16,9 +19,10 @@
                     $course_term = mysqli_real_escape_string($connection, $course_data[0]);
                     $course_department = mysqli_real_escape_string($connection, $course_data[1]);
                     $course_number = mysqli_real_escape_string($connection, $course_data[2]);
-                    $course_section = mysqli_real_escape_string($connection, $course_data[3]);
 
-                    $visible = $_POST['public_'.$course_id] === 'true';
+                    $is_visible = $_POST['is_visible_'.$course_id] == 'true';
+                    // $is_link = $_POST['is_link_'.$course_id] == 'true'; USE WHEN READY
+                    $is_link = false;
 
                     $filename = $_FILES[$course_id]['name'];
                     $extension = end(explode('.', $filename));
@@ -26,7 +30,7 @@
                     $tmp_filepath = $_FILES[$course_id]['tmp_name'];
                     $new_filepath = "";
 
-                    if($visible)
+                    if($is_visible)
                         $new_filepath .= "public/";
                     else
                         $new_filepath .= "private/";
@@ -40,47 +44,43 @@
                     $new_filepath .= $new_filename;
                     $new_filepath .= '.'.$extension;
 
-                    $new_url_sanitized = mysqli_real_escape_string($connection, $base_url.$new_filepath);
+                    $new_filepath_sanitized = mysqli_real_escape_string($connection, $new_filepath);
 
                     echo "<div>Your syllabus for the course $course_id was named $filename, and you elected ";
-                    if(!$visible)
+                    if(!$is_visible)
                         echo "not ";
                     echo "to make it visible to students outside the course. It has been uploaded ";
                     if(move_uploaded_file($tmp_filepath, $base_directory.$new_filepath))
                     {
                         echo "successfully.</div>";
-                        if($visible)
-                            chmod($base_directory.$new_filepath, 0744);
-                        else
-                            chmod($base_directory.$new_filepath, 0700);
+                        chmod($base_directory.$new_filepath, 0666);
 
                         $exists_query =
                             "SELECT EXISTS(SELECT 1 FROM syllabi WHERE ".
                             "instructor = '".$username."' AND ".
                             "term = '".$course_term."' AND ".
                             "department = '".$course_department."' AND ".
-                            "number = '".$course_number."' AND ".
-                            "section = '".$course_section."');";
+                            "number = '".$course_number."');";
 
                         $exists_result = mysqli_query($connection, $exists_query);
 
                         if($exists_result)
                         {
-                            $exists_array = mysqli_fetch_array($exists_result);
+                            $exists_array = mysqli_fetch_array($exists_result, MYSQLI_NUM);
                             $query = "";
 
                             if($exists_array[0])
                             {
                                 $query =
                                     "UPDATE syllabi SET ".
-                                    "visible = '".($visible ? "Y" : "N")."', ".
-                                    "link = '".$new_url_sanitized."' ".
+                                    "is_visible = '".($is_visible ? "Y" : "N")."', ".
+                                    "is_link = '".($is_link ? "Y" : "N")."', ".
+                                    "location = '".$new_filepath_sanitized."' ".
                                     "WHERE ".
                                     "instructor = '".$username."' AND ".
                                     "term = '".$course_term."' AND ".
                                     "department = '".$course_department."' AND ".
-                                    "number = '".$course_number."' AND ".
-                                    "section = '".$course_section."';";
+                                    "number = '".$course_number."';";
                             }
                             else
                             {
@@ -90,9 +90,9 @@
                                     $course_term."', '".
                                     $course_department."', '".
                                     $course_number."', '".
-                                    $course_section."', '".
-                                    ($visible ? "Y" : "N")."', '".
-                                    $new_url_sanitized."');";
+                                    ($is_visible ? "Y" : "N")."', '".
+                                    ($is_link ? "Y" : "N")."', '".
+                                    $new_filepath_sanitized."');";
                             }
 
                             echo "<div>";

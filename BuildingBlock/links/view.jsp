@@ -35,7 +35,7 @@
     else
     { %>
         <br />
-        <form action="https://conevals.csr.oberlin.edu/syllabi_testing/syllabi.php" method="POST" enctype="multipart/form-data">
+        <form action="https://conevals.csr.oberlin.edu/Syllabi/upload.php" method="POST" enctype="multipart/form-data">
         <input type="hidden" name="MAX_FILE_SIZE" value="100000">
         <input type="hidden" name="username" value="<%=currentUser.getUserName()%>">
         <%
@@ -43,17 +43,16 @@
         {
             String courseId = taughtCourse.getCourseId();
             %>
-            <div><b><%=taughtCourse.getTitle()%></b></div>
+            <div>&emsp;<b><%=taughtCourse.getTitle()%>:</b></div>
             <input type="hidden" name="courses[]" value="<%=taughtCourse.getCourseId()%>">
-            <input type="file" name="<%=courseId%>"><br />
-            <br />
-            <input type="radio" name="public_<%=courseId%>" value="true"><b>Allow</b> students not registered for the course to see this syllabus.<br />
-            <input type="radio" name="public_<%=courseId%>" value="false" checked><b>Do not allow</b> students not registered for the course to see this syllabus.<br />
-            <br />
+            &emsp;&emsp;<input type="file" name="<%=courseId%>"><br />
+            &emsp;&emsp;<input type="radio" name="is_visible_<%=courseId%>" value="true"><b>Allow</b> students not registered for the course to see this syllabus.<br />
+            &emsp;&emsp;<input type="radio" name="is_visible_<%=courseId%>" value="false" checked><b>Do not allow</b> students not registered for the course to see this syllabus.<br />
             <br />
         <% }
         %>
-        <input type="submit" value="Upload file(s)">
+        <br />
+        &emsp;<input type="submit" value="Upload file(s)">
         <br />
         </form>
         <%
