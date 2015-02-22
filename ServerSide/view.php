@@ -1,5 +1,5 @@
 <?php
-    $base_url = "https://conevals.csr.oberlin.edu/Syllabi/";
+    $base_url = "https://conevals.csr.oberlin.edu/Syllabi";
     $base_directory = "/home/cegerton/Uploaded_Syllabi/";
     if(!array_key_exists('course', $_GET))
     {
@@ -43,9 +43,16 @@
     {
         case 'P':
         case 'T':
-            echo '<h3><a href="'.$base_url.'/view.php?course='.$course_id.'">Click here</a> to view the current syllabus for this course and instructor.</h3>';
+            echo '<h3><a href="'.$base_url.'/view.php?course='.$course_id.'">Click here</a> to view the current syllabus (if one exists).</h3>';
 
-            echo '<h3>Or upload a new syllabus for this course and instructor:</h3>';
+            echo '<h3><form action="'.$base_url.'/delete.php" method="post" id="delete_form">';
+                echo '<input type="hidden" name="course_id" value="'.$course_id.'" />';
+                echo '<input type="hidden" name="username" value="'.$username.'" />';
+                echo '<input type="hidden" name="role" value="'.$role.'" />';
+                echo '<a href="javascript:{}" onclick="if(confirm(\'Are you sure you want to delete the syllabus for this course?\')) document.getElementById(\'delete_form\').submit();">Click here</a> to remove the current syllabus (if one exists).';
+            echo '</form></h3>';
+
+            echo '<h3>Upload a new syllabus here:</h3>';
             echo '<form action="'.$base_url.'/upload.php" method="post" enctype="multipart/form-data">';
                 echo '<input type="hidden" name="MAX_FILE_SIZE" value="100000">';
                 echo '<input type="hidden" name="role" value="S" />';
