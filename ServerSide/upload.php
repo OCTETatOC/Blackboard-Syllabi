@@ -19,6 +19,7 @@
                     $course_term = mysqli_real_escape_string($connection, $course_data[0]);
                     $course_department = mysqli_real_escape_string($connection, $course_data[1]);
                     $course_number = mysqli_real_escape_string($connection, $course_data[2]);
+                    $course_section = mysqli_real_escape_string($connection, $course_data[3]);
 
                     $is_visible = $_POST['is_visible_'.$course_id] == 'true';
                     // $is_link = $_POST['is_link_'.$course_id] == 'true'; USE WHEN READY
@@ -60,7 +61,8 @@
                             "instructor = '".$username."' AND ".
                             "term = '".$course_term."' AND ".
                             "department = '".$course_department."' AND ".
-                            "number = '".$course_number."');";
+                            "number = '".$course_number."' AND ".
+                            "section = '".$course_section."');";
 
                         $exists_result = mysqli_query($connection, $exists_query);
 
@@ -80,7 +82,8 @@
                                     "instructor = '".$username."' AND ".
                                     "term = '".$course_term."' AND ".
                                     "department = '".$course_department."' AND ".
-                                    "number = '".$course_number."';";
+                                    "number = '".$course_number."' AND".
+                                    "section = '".$course_section."';";
                             }
                             else
                             {
@@ -90,10 +93,13 @@
                                     $course_term."', '".
                                     $course_department."', '".
                                     $course_number."', '".
+                                    $course_section."', '".
                                     ($is_visible ? "Y" : "N")."', '".
                                     ($is_link ? "Y" : "N")."', '".
                                     $new_filepath_sanitized."');";
                             }
+                            
+                            mysqli_free_result($exists_result);
 
                             echo "<div>";
                             if(mysqli_query($connection, $query))

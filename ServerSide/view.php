@@ -18,12 +18,14 @@
     $course_term = mysqli_real_escape_string($connection, $course_data[0]);
     $course_department = mysqli_real_escape_string($connection, $course_data[1]);
     $course_number = mysqli_real_escape_string($connection, $course_data[2]);
+    $course_section = mysqli_real_escape_string($connection, $course_data[3]);
 
     $syllabus_query =
         "SELECT * FROM syllabi WHERE ".
         "term = '".$course_term."' AND ".
         "department = '".$course_department."' AND ".
-        "number = '".$course_number."';";
+        "number = '".$course_number."' AND ".
+        "section = '".$course_section."';";
 
     $syllabus_result = mysqli_query($connection, $syllabus_query);
     if(!$syllabus_result)
@@ -87,4 +89,5 @@
             }
             break;
     }
+    mysqli_free_result($syllabus_result);
 ?>
